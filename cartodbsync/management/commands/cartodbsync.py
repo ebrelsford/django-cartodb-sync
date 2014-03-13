@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models.loading import get_model
 
+from ...models import SyncEntry
+
 
 class Command(BaseCommand):
     help = 'Synchronize model data with CartoDB tables'
@@ -16,20 +18,34 @@ class Command(BaseCommand):
             type='string',
             dest='model',
         ),
+        make_option('--markinsert',
+            action='store_true',
+            dest='mark_insert',
+        ),
     )
 
     def handle(self, *args, **options):
         model = options.get('model', None)
+        mark_insert = options.get('mark_insert', False)
 
         try:
             models = settings.CARTODB_SYNC['MODELS']
             for m in models:
                 if model and model != m['MODEL_CLASS']:
                     continue
-                self.synchronize(m)
+
+                if mark_insert:
+                    self.mark_all_as_pending_insert(m)
+                    continue
+                else:
+                    self.synchronize(m)
         except Exception:
             traceback.print_exc()
             raise CommandError('There was a problem synchronizing data')
+
+    def mark_all_as_pending_insert(self, settings_entry):
+        model = self.get_model(settings_entry['MODEL_CLASS'])
+        SyncEntry.objects.mark_as_pending_insert(model.objects.all())
 
     def get_model(self, model_string):
         return get_model(*model_string.split('.'))
