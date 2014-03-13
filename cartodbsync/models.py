@@ -27,7 +27,10 @@ class SyncEntryQuerySet(QuerySet):
         return self.update(status=SyncEntry.PENDING_UPDATE)
 
     def mark_as_success(self):
-        return self.update(status=SyncEntry.SUCCESS)
+        # Need to fetch entries again rather than use self since it has likely
+        # been sliced
+        pks = [e.pk for e in self]
+        SyncEntry.objects.filter(pk__in=pks).update(status=SyncEntry.SUCCESS)
 
     def mark_as_failed(self):
         for entry in self:
