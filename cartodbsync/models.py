@@ -35,7 +35,7 @@ class SyncEntryQuerySet(QuerySet):
             entry.status = SyncEntry.FAIL_RETRY
             if entry.attempts > 3:
                 entry.status = SyncEntry.FAIL
-        return self.save()
+            entry.save()
 
 
 class SyncEntryManager(models.Manager):
