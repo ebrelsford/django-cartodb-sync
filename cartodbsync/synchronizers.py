@@ -30,12 +30,12 @@ class BaseSynchronizer(object):
         entries = self.get_entries_to_synchronize()
         try:
             self.synchronize_entries(entries)
-            self.mark_as_success(entries)
+            entries.mark_as_success()
         except Exception as e:
             traceback.print_exc()
             print 'Exception while synchronizing:', e
             # Assume none of them were updated
-            self.mark_as_failed(entries)
+            entries.mark_as_failed()
 
     def get_entries_to_synchronize(self):
         entries = SyncEntry.objects.for_model(self.model).to_synchronize()
@@ -140,9 +140,3 @@ class BaseSynchronizer(object):
             'column names',
         )
         return sql
-
-    def mark_as_success(self, entries):
-        entries.mark_as_success()
-
-    def mark_as_failed(self, entries):
-        entries.mark_as_failed()
