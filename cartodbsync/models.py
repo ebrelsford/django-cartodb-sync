@@ -57,12 +57,14 @@ class SyncEntry(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     # Meta
+    PENDING_DELETE = 'pending delete'
     PENDING_INSERT = 'pending insert'
     PENDING_UPDATE = 'pending update'
     SUCCESS = 'success'
     FAIL_RETRY = 'fail retry'
     FAIL = 'fail'
     STATUS_CHOICES = (
+        (PENDING_DELETE, 'pending delete'),
         (PENDING_INSERT, 'pending insert'),
         (PENDING_UPDATE, 'pending update'),
         (SUCCESS, 'success'),

@@ -42,14 +42,21 @@ class BaseSynchronizer(object):
         return entries
 
     def synchronize_entries(self, entries):
+        deletes = []
         inserts = []
         updates = []
         for entry in entries:
             cartodb_mapping = self.get_cartodb_mapping(entry.content_object)
+            if entry.status == SyncEntry.PENDING_DELETE:
+                deletes.append(cartodb_mapping)
             if entry.status == SyncEntry.PENDING_INSERT:
                 inserts.append(cartodb_mapping)
             if entry.status == SyncEntry.PENDING_UPDATE:
                 updates.append(cartodb_mapping)
+
+        if deletes:
+            # TODO delete statement for CartoDB, execute
+            pass
 
         if inserts:
             insert_statement = self.get_insert_statement(inserts)
