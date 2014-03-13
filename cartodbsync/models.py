@@ -15,12 +15,13 @@ class SyncEntryQuerySet(QuerySet):
                                        SyncEntry.FAIL_RETRY))
 
     def mark_as_pending_insert(self, instances):
+        sync_entries = []
         for instance in instances:
-            sync_entry = SyncEntry(
+            sync_entries.append(SyncEntry(
                 content_object=instance,
                 status=SyncEntry.PENDING_INSERT,
-            )
-            sync_entry.save()
+            ))
+        self.bulk_create(sync_entries)
 
     def mark_as_pending_update(self):
         return self.update(status=SyncEntry.PENDING_UPDATE)
