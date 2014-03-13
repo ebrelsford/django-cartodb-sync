@@ -52,8 +52,8 @@ class SyncEntryManager(models.Manager):
 
 class SyncEntry(models.Model):
     # The object to be synchronized
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     # Meta
