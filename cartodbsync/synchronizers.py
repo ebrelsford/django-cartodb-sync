@@ -52,7 +52,6 @@ class BaseSynchronizer(object):
 
         if inserts:
             insert_statement = self.get_insert_statement(inserts)
-            print 'TO INSERT: %s' % insert_statement
             cl = CartoDBAPIKey(settings.CARTODB_SYNC['API_KEY'],
                                settings.CARTODB_SYNC['DOMAIN'])
             try:
