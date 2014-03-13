@@ -12,8 +12,7 @@ class SyncEntryQuerySet(QuerySet):
     def to_synchronize(self):
         return self.filter(status__in=(SyncEntry.PENDING_DELETE,
                                        SyncEntry.PENDING_INSERT,
-                                       SyncEntry.PENDING_UPDATE,
-                                       SyncEntry.FAIL_RETRY))
+                                       SyncEntry.PENDING_UPDATE))
 
     def mark_as_pending_delete(self, instances):
         sync_entries = []
@@ -45,7 +44,6 @@ class SyncEntryQuerySet(QuerySet):
     def mark_as_failed(self):
         for entry in self:
             entry.attempts = entry.attempts + 1
-            entry.status = SyncEntry.FAIL_RETRY
             if entry.attempts > 3:
                 entry.status = SyncEntry.FAIL
             entry.save()
@@ -71,14 +69,12 @@ class SyncEntry(models.Model):
     PENDING_INSERT = 'pending insert'
     PENDING_UPDATE = 'pending update'
     SUCCESS = 'success'
-    FAIL_RETRY = 'fail retry'
     FAIL = 'fail'
     STATUS_CHOICES = (
         (PENDING_DELETE, 'pending delete'),
         (PENDING_INSERT, 'pending insert'),
         (PENDING_UPDATE, 'pending update'),
         (SUCCESS, 'success'),
-        (FAIL_RETRY, 'fail retry'),
         (FAIL, 'fail'),
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, null=True,
