@@ -10,9 +10,19 @@ class SyncEntryQuerySet(QuerySet):
         return self.filter(content_type=ContentType.objects.get_for_model(model))
 
     def to_synchronize(self):
-        return self.filter(status__in=(SyncEntry.PENDING_INSERT,
+        return self.filter(status__in=(SyncEntry.PENDING_DELETE,
+                                       SyncEntry.PENDING_INSERT,
                                        SyncEntry.PENDING_UPDATE,
                                        SyncEntry.FAIL_RETRY))
+
+    def mark_as_pending_delete(self, instances):
+        sync_entries = []
+        for instance in instances:
+            sync_entries.append(SyncEntry(
+                object_id=instance.pk,
+                status=SyncEntry.PENDING_DELETE,
+            ))
+        self.bulk_create(sync_entries)
 
     def mark_as_pending_insert(self, instances):
         sync_entries = []
