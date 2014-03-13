@@ -18,7 +18,7 @@ class SyncEntryQuerySet(QuerySet):
         sync_entries = []
         for instance in instances:
             sync_entries.append(SyncEntry(
-                object_id=instance.pk,
+                content_object=instance,
                 status=SyncEntry.PENDING_DELETE,
             ))
         self.bulk_create(sync_entries)
