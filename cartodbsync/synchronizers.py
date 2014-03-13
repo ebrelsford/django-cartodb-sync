@@ -29,7 +29,8 @@ class BaseSynchronizer(object):
         try:
             self.synchronize_entries(entries)
             self.mark_as_success(entries)
-        except Exception:
+        except Exception as e:
+            print 'Exception while synchronizing:', e
             # Assume none of them were updated
             self.mark_as_failed(entries)
 
