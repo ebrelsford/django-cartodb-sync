@@ -45,6 +45,9 @@ class BaseSynchronizer(object):
         return entries
 
     def synchronize_entries(self, entries):
+        cl = CartoDBAPIKey(settings.CARTODB_SYNC['API_KEY'],
+                            settings.CARTODB_SYNC['DOMAIN'])
+
         deletes = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_DELETE]
         if deletes:
@@ -55,12 +58,10 @@ class BaseSynchronizer(object):
                    if e.status == SyncEntry.PENDING_INSERT]
         if inserts:
             insert_statement = self.get_insert_statement(inserts)
-            cl = CartoDBAPIKey(settings.CARTODB_SYNC['API_KEY'],
-                               settings.CARTODB_SYNC['DOMAIN'])
             try:
                 print cl.sql(insert_statement)
             except CartoDBException as e:
-                print ("some error ocurred", e)
+                print 'Exception while executing sql:', e
 
         updates = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_UPDATE]
