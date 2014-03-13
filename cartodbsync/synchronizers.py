@@ -54,6 +54,7 @@ class BaseSynchronizer(object):
             try:
                 print cl.sql(statement)
             except CartoDBException as e:
+                traceback.print_exc()
                 print 'Exception while deleting:', e
 
         inserts = [self.get_cartodb_mapping(e.content_object) for e in entries \
@@ -63,20 +64,30 @@ class BaseSynchronizer(object):
             try:
                 print cl.sql(insert_statement)
             except CartoDBException as e:
+                traceback.print_exc()
                 print 'Exception while inserting:', e
 
         updates = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_UPDATE]
         if updates:
             statement = self.get_update_statement(updates)
+            print statement
             try:
                 print cl.sql(statement)
             except CartoDBException as e:
+                traceback.print_exc()
                 print 'Exception while updating:', e
 
     def format_value(self, value):
         if isinstance(value, (int, float, long, complex)):
             return str(value)
+        try:
+            # Try converting to a number, avoid wrapping in quotes if it is one
+            float(value)
+            return str(value)
+        except Exception:
+            pass
+
         if isinstance(value, GEOSGeometry):
             return "'%s'" % value.ewkt
         return "'%s'" % str(value)
@@ -121,7 +132,7 @@ class BaseSynchronizer(object):
         )
         return sql
 
-    def get_update_statement(self, update_instances):
+    def get_update_statement(self, instances):
         """
         Consolidate the given instances into one large and efficient update
         statement.
@@ -135,11 +146,16 @@ class BaseSynchronizer(object):
         ) n(id, <column 1>, <column 2>)
         WHERE o.id = n.id;
         """
+        column_names = self.get_column_names()
+        values = []
+        for instance in instances:
+            formatted_values = [self.format_value(instance[c]) for c in column_names]
+            values.append(','.join(formatted_values))
+
         sql = 'UPDATE %s o SET %s FROM (VALUES %s) n(%s) WHERE o.id = n.id' % (
             self.cartodb_table,
-            # TODO implement
-            'set equations',
-            'set values',
-            'column names',
+            ','.join(['%s=n.%s' % (c, c) for c in column_names]),
+            ','.join(['(%s)' % v for v in values]),
+            ','.join(column_names),
         )
         return sql
