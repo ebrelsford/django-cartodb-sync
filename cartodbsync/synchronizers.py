@@ -48,11 +48,13 @@ class BaseSynchronizer(object):
         cl = CartoDBAPIKey(settings.CARTODB_SYNC['API_KEY'],
                             settings.CARTODB_SYNC['DOMAIN'])
 
-        deletes = [self.get_cartodb_mapping(e.content_object) for e in entries \
-                   if e.status == SyncEntry.PENDING_DELETE]
+        deletes = [e for e in entries if e.status == SyncEntry.PENDING_DELETE]
         if deletes:
-            # TODO delete statement for CartoDB, execute
-            pass
+            statement = self.get_delete_statement(deletes)
+            try:
+                print cl.sql(statement)
+            except CartoDBException as e:
+                print 'Exception while deleting:', e
 
         inserts = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_INSERT]
@@ -61,7 +63,7 @@ class BaseSynchronizer(object):
             try:
                 print cl.sql(insert_statement)
             except CartoDBException as e:
-                print 'Exception while executing sql:', e
+                print 'Exception while inserting:', e
 
         updates = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_UPDATE]
@@ -82,6 +84,19 @@ class BaseSynchronizer(object):
     def get_cartodb_mapping(self, instance):
         # TODO something very basic by default?
         raise NotImplementedError('Implement get_cartodb_mapping')
+
+    def get_delete_statement(self, delete_entries):
+        """
+        Consolidate the given instances into one large and efficient delete
+        statement.
+
+        DELETE FROM <table name> WHERE id in (<ids>)
+        """
+        sql = 'DELETE FROM %s WHERE id in (%s)' % (
+            self.cartodb_table,
+            ','.join([str(e.object_id) for e in delete_entries]),
+        )
+        return sql
 
     def get_insert_statement(self, insert_instances):
         """
