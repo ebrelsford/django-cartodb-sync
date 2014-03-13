@@ -68,8 +68,11 @@ class BaseSynchronizer(object):
         updates = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_UPDATE]
         if updates:
-            # TODO update statement for CartoDB, execute
-            pass
+            statement = self.get_update_statement(updates)
+            try:
+                print cl.sql(statement)
+            except CartoDBException as e:
+                print 'Exception while updating:', e
 
     def format_value(self, value):
         if isinstance(value, (int, float, long, complex)):
