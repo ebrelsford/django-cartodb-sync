@@ -1,3 +1,5 @@
+import traceback
+
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry
 
@@ -30,6 +32,7 @@ class BaseSynchronizer(object):
             self.synchronize_entries(entries)
             self.mark_as_success(entries)
         except Exception as e:
+            traceback.print_exc()
             print 'Exception while synchronizing:', e
             # Assume none of them were updated
             self.mark_as_failed(entries)
@@ -42,22 +45,14 @@ class BaseSynchronizer(object):
         return entries
 
     def synchronize_entries(self, entries):
-        deletes = []
-        inserts = []
-        updates = []
-        for entry in entries:
-            cartodb_mapping = self.get_cartodb_mapping(entry.content_object)
-            if entry.status == SyncEntry.PENDING_DELETE:
-                deletes.append(cartodb_mapping)
-            if entry.status == SyncEntry.PENDING_INSERT:
-                inserts.append(cartodb_mapping)
-            if entry.status == SyncEntry.PENDING_UPDATE:
-                updates.append(cartodb_mapping)
-
+        deletes = [self.get_cartodb_mapping(e.content_object) for e in entries \
+                   if e.status == SyncEntry.PENDING_DELETE]
         if deletes:
             # TODO delete statement for CartoDB, execute
             pass
 
+        inserts = [self.get_cartodb_mapping(e.content_object) for e in entries \
+                   if e.status == SyncEntry.PENDING_INSERT]
         if inserts:
             insert_statement = self.get_insert_statement(inserts)
             cl = CartoDBAPIKey(settings.CARTODB_SYNC['API_KEY'],
@@ -67,6 +62,8 @@ class BaseSynchronizer(object):
             except CartoDBException as e:
                 print ("some error ocurred", e)
 
+        updates = [self.get_cartodb_mapping(e.content_object) for e in entries \
+                   if e.status == SyncEntry.PENDING_UPDATE]
         if updates:
             # TODO update statement for CartoDB, execute
             pass
