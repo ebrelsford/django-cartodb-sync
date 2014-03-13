@@ -14,26 +14,20 @@ class SyncEntryQuerySet(QuerySet):
                                        SyncEntry.PENDING_INSERT,
                                        SyncEntry.PENDING_UPDATE))
 
-    def mark_as_pending_delete(self, instances):
+    def mark_as_status(self, instances, status):
         sync_entries = []
         for instance in instances:
-            sync_entries.append(SyncEntry(
-                content_object=instance,
-                status=SyncEntry.PENDING_DELETE,
-            ))
+            sync_entries.append(SyncEntry(content_object=instance, status=status))
         self.bulk_create(sync_entries)
+
+    def mark_as_pending_delete(self, instances):
+        self.mark_as_status(instances, SyncEntry.PENDING_DELETE)
 
     def mark_as_pending_insert(self, instances):
-        sync_entries = []
-        for instance in instances:
-            sync_entries.append(SyncEntry(
-                content_object=instance,
-                status=SyncEntry.PENDING_INSERT,
-            ))
-        self.bulk_create(sync_entries)
+        self.mark_as_status(instances, SyncEntry.PENDING_INSERT)
 
-    def mark_as_pending_update(self):
-        return self.update(status=SyncEntry.PENDING_UPDATE)
+    def mark_as_pending_update(self, instances):
+        self.mark_as_status(instances, SyncEntry.PENDING_UPDATE)
 
     def mark_as_success(self):
         # Need to fetch entries again rather than use self since it has likely
