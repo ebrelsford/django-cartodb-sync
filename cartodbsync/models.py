@@ -21,12 +21,22 @@ class SyncEntryQuerySet(QuerySet):
         self.bulk_create(sync_entries)
 
     def mark_as_pending_delete(self, instances):
+        # Delete other entries for these instances since they'll be deleted
+        # soon anyway. Also potentially an error if the synchronizer will
+        # attempt to access instances that no longer exist due to deletion.
+        self.filter(object_id__in=[i.pk for i in instances]).delete()
+
         self.mark_as_status(instances, SyncEntry.PENDING_DELETE)
 
     def mark_as_pending_insert(self, instances):
         self.mark_as_status(instances, SyncEntry.PENDING_INSERT)
 
     def mark_as_pending_update(self, instances):
+        # Delete other update entries for these instances
+        pks = [instance.pk for instance in instances]
+        self.filter(object_id__in=pks, status=SyncEntry.PENDING_UPDATE).delete()
+
+        # Now add update entries for these instances
         self.mark_as_status(instances, SyncEntry.PENDING_UPDATE)
 
     def mark_as_success(self):
