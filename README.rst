@@ -3,10 +3,12 @@ django-cartodb-sync
 
 A Django app that helps keep `CartoDB`_ tables synchronized with Django models.
 
+
 Requirements
 ------------
 
 Django >= 1.6.2, `cartodb-python`_, a CartoDB account.
+
 
 Installation
 ------------
@@ -20,6 +22,17 @@ Add to ``INSTALLED_APPS``::
     )
 
 Then add the appropriate configuration details to your ``settings``.
+
+You will need some way of letting ``django-cartodb-sync`` about instances that
+need to be inserted, updated, or deleted. The simplest way is to use `signals`_
+and the ``SyncEntry`` methods ``mark_as_pending_delete``,
+``mark_as_pending_insert``, and ``mark_as_pending_update``.
+
+Finally, configure a cron job to run the ``cartodbsync`` management command.
+If you have existing model instances, mark all for insertion by running::
+
+    django-admin.py cartodbsync --markinsert
+
 
 Configuration
 -------------
@@ -44,3 +57,4 @@ You can list as many models as you like within the ``MODELS`` entry.
 
 .. _`CartoDB`: http://cartodb.com/
 .. _`cartodb-python`: https://github.com/vizzuality/cartodb-python
+.. _`signals`: https://docs.djangoproject.com/en/1.6/topics/signals/
