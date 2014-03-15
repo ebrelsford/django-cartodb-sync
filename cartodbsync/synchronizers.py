@@ -48,14 +48,11 @@ class BaseSynchronizer(object):
         cl = CartoDBAPIKey(settings.CARTODB_SYNC['API_KEY'],
                             settings.CARTODB_SYNC['DOMAIN'])
 
-        deletes = [e for e in entries if e.status == SyncEntry.PENDING_DELETE]
-        if deletes:
-            statement = self.get_delete_statement(deletes)
-            try:
-                print cl.sql(statement)
-            except CartoDBException as e:
-                traceback.print_exc()
-                print 'Exception while deleting:', e
+        #
+        # Apply synchronizations in the following order: insert, update,
+        # delete. In this way, we should hopefully avoid unsafe situations
+        # such as deleting an entry then trying to update it.
+        #
 
         inserts = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_INSERT]
@@ -77,6 +74,15 @@ class BaseSynchronizer(object):
             except CartoDBException as e:
                 traceback.print_exc()
                 print 'Exception while updating:', e
+
+        deletes = [e for e in entries if e.status == SyncEntry.PENDING_DELETE]
+        if deletes:
+            statement = self.get_delete_statement(deletes)
+            try:
+                print cl.sql(statement)
+            except CartoDBException as e:
+                traceback.print_exc()
+                print 'Exception while deleting:', e
 
     def format_value(self, value):
         if isinstance(value, (int, float, long, complex)):
