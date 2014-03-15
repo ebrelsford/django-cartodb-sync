@@ -22,7 +22,7 @@ setup(
     name='cartodbsync',
     version=cartodbsync.__version__,
     description=("A Django app that helps keep CartoDB tables synchronized with Django models."),
-    long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
+    long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
     url='https://github.com/ebrelsford/django-cartodb-sync',
     license='BSD License',
     platforms=['OS Independent'],
