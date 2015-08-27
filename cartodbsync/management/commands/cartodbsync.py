@@ -4,7 +4,7 @@ import traceback
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models.loading import get_model
+from django.apps import apps
 
 from ...models import SyncEntry
 
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         SyncEntry.objects.mark_as_pending_insert(model.objects.all())
 
     def get_model(self, model_string):
-        return get_model(*model_string.split('.'))
+        return apps.get_model(*model_string.split('.'))
 
     def get_synchronizer_class(self, synchronizer_string):
         module_name, class_name = synchronizer_string.rsplit('.', 1)
