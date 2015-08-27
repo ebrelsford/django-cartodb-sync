@@ -85,6 +85,8 @@ class BaseSynchronizer(object):
                 print('Exception while deleting:', e)
 
     def format_value(self, value):
+        if value is None:
+            return 'NULL'
         if isinstance(value, (int, float, complex)):
             return str(value)
         try:
