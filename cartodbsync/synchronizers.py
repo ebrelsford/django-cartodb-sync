@@ -33,7 +33,7 @@ class BaseSynchronizer(object):
             entries.mark_as_success()
         except Exception as e:
             traceback.print_exc()
-            print 'Exception while synchronizing:', e
+            print('Exception while synchronizing:', e)
             # Assume none of them were updated
             entries.mark_as_failed()
 
@@ -59,33 +59,33 @@ class BaseSynchronizer(object):
         if inserts:
             insert_statement = self.get_insert_statement(inserts)
             try:
-                print cl.sql(insert_statement)
+                print(cl.sql(insert_statement))
             except CartoDBException as e:
                 traceback.print_exc()
-                print 'Exception while inserting:', e
+                print('Exception while inserting:', e)
 
         updates = [self.get_cartodb_mapping(e.content_object) for e in entries \
                    if e.status == SyncEntry.PENDING_UPDATE]
         if updates:
             statement = self.get_update_statement(updates)
-            print statement
+            print(statement)
             try:
-                print cl.sql(statement)
+                print(cl.sql(statement))
             except CartoDBException as e:
                 traceback.print_exc()
-                print 'Exception while updating:', e
+                print('Exception while updating:', e)
 
         deletes = [e for e in entries if e.status == SyncEntry.PENDING_DELETE]
         if deletes:
             statement = self.get_delete_statement(deletes)
             try:
-                print cl.sql(statement)
+                print(cl.sql(statement))
             except CartoDBException as e:
                 traceback.print_exc()
-                print 'Exception while deleting:', e
+                print('Exception while deleting:', e)
 
     def format_value(self, value):
-        if isinstance(value, (int, float, long, complex)):
+        if isinstance(value, (int, float, complex)):
             return str(value)
         try:
             # Try converting to a number, avoid wrapping in quotes if it is one
