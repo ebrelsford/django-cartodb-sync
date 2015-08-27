@@ -7,7 +7,7 @@ A Django app that helps keep `CartoDB`_ tables synchronized with Django models.
 Requirements
 ------------
 
-Django >= 1.6.2, `cartodb-python`_, a CartoDB account.
+Django >= 1.8, `cartodb-python`_, a CartoDB account.
 
 
 Installation
@@ -57,4 +57,4 @@ You can list as many models as you like within the ``MODELS`` entry.
 
 .. _`CartoDB`: http://cartodb.com/
 .. _`cartodb-python`: https://github.com/vizzuality/cartodb-python
-.. _`signals`: https://docs.djangoproject.com/en/1.6/topics/signals/
+.. _`signals`: https://docs.djangoproject.com/en/1.8/topics/signals/

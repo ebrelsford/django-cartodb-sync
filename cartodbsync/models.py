@@ -1,5 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 from django.db import models
 from django.db.models.query import QuerySet
 
@@ -66,7 +66,7 @@ class SyncEntry(models.Model):
     # The object to be synchronized
     content_type = models.ForeignKey(ContentType, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     # Meta
     PENDING_DELETE = 'pending delete'
