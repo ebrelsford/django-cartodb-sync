@@ -21,7 +21,7 @@ CLASSIFIERS = [
 setup(
     author='Eric Brelsford',
     author_email='ebrelsford@gmail.com',
-    name='cartodbsync',
+    name='django-cartodb-sync',
     version=cartodbsync.__version__,
     description=("A Django app that helps keep CartoDB tables synchronized with Django models."),
     long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read(),
