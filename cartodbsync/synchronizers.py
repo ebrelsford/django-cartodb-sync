@@ -102,7 +102,6 @@ class BaseSynchronizer(object):
         raise NotImplementedError('Implement get_column_names')
 
     def get_cartodb_mapping(self, instance):
-        # TODO something very basic by default?
         raise NotImplementedError('Implement get_cartodb_mapping')
 
     def get_delete_statement(self, delete_entries):
