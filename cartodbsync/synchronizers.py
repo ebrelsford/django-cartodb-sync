@@ -1,3 +1,4 @@
+from datetime import datetime
 import traceback
 
 from django.conf import settings
@@ -89,6 +90,10 @@ class BaseSynchronizer(object):
             return 'NULL'
         if isinstance(value, (int, float, complex)):
             return str(value)
+        if isinstance(value, datetime):
+            return "to_timestamp('%s', 'YYYY-MM-DD HH24:MI:SS')" % (
+                value.strftime('%Y-%m-%d %H:%M:%S%z'),
+            )
         try:
             # Try converting to a number, avoid wrapping in quotes if it is one
             float(value)
